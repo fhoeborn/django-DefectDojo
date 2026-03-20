@@ -362,6 +362,12 @@ env = environ.FileAwareEnv(
     DD_V3_FEATURE_LOCATIONS=(bool, False),
     # Dictates if v3 org/asset relabeling (+url routing) will be enabled
     DD_ENABLE_V3_ORGANIZATION_ASSET_RELABEL=(bool, False),
+    # LLM-based validation of risk acceptance statements
+    # When enabled, the decision_details and recommendation_details fields are validated
+    # via an LLM to detect invalid or illogical statements before saving.
+    DD_LLM_RISK_ACCEPTANCE_VALIDATION_ENABLED=(bool, False),
+    DD_LLM_OPENAI_API_KEY=(str, ""),
+    DD_LLM_OPENAI_MODEL=(str, "gpt-4o-mini"),
 )
 
 
@@ -843,6 +849,11 @@ PERMISSIONS_POLICY = {
 # ------------------------------------------------------------------------------
 
 ENABLE_V3_ORGANIZATION_ASSET_RELABEL = env("DD_ENABLE_V3_ORGANIZATION_ASSET_RELABEL")
+
+# LLM-based validation of risk acceptance statements
+LLM_RISK_ACCEPTANCE_VALIDATION_ENABLED = env("DD_LLM_RISK_ACCEPTANCE_VALIDATION_ENABLED")
+LLM_OPENAI_API_KEY = env("DD_LLM_OPENAI_API_KEY")
+LLM_OPENAI_MODEL = env("DD_LLM_OPENAI_MODEL")
 
 # Credential Key
 CREDENTIAL_AES_256_KEY = env("DD_CREDENTIAL_AES_256_KEY")

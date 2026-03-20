@@ -106,6 +106,7 @@ from dojo.models import (
 )
 from dojo.product.queries import get_authorized_products
 from dojo.product_type.queries import get_authorized_product_types
+from dojo.risk_acceptance.llm_validator import validate_risk_acceptance_statement
 from dojo.tools.factory import get_choices_sorted, requires_file, requires_tool_type
 from dojo.user.queries import get_authorized_users, get_authorized_users_for_product_and_product_type
 from dojo.user.utils import get_configuration_permissions_fields
@@ -940,6 +941,14 @@ class EditRiskAcceptanceForm(forms.ModelForm):
                     msg = "File uploads are prohibited due to the list of acceptable file extensions being empty"
                 raise ValidationError(msg)
         return data
+
+    def clean(self):
+        cleaned_data = super().clean()
+        validate_risk_acceptance_statement(
+            cleaned_data.get("decision_details"),
+            cleaned_data.get("recommendation_details"),
+        )
+        return cleaned_data
 
 
 class RiskAcceptanceForm(EditRiskAcceptanceForm):

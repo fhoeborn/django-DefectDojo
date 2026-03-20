@@ -120,6 +120,7 @@ from dojo.product_announcements import (
     LargeScanSizeProductAnnouncement,
     ScanTypeProductAnnouncement,
 )
+from dojo.risk_acceptance.llm_validator import validate_risk_acceptance_statement
 from dojo.tools.factory import (
     get_choices_sorted,
     requires_file,
@@ -1664,6 +1665,12 @@ class RiskAcceptanceSerializer(serializers.ModelSerializer):
                 if risk_acceptance_engagement.id != new_findings_engagement.id:
                     msg = f"Risk Acceptance belongs to engagement {risk_acceptance_engagement.id}. Cannot add findings from engagement {new_findings_engagement.id}"
                     raise ValidationError(msg)
+
+        validate_risk_acceptance_statement(
+            data.get("decision_details"),
+            data.get("recommendation_details"),
+        )
+
         return data
 
     class Meta:
