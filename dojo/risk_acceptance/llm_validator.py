@@ -7,8 +7,10 @@ compatible LLM to detect invalid or illogical text before a risk acceptance
 is saved.  If the LLM is not configured or an error occurs the validation is
 silently skipped so that the feature degrades gracefully.
 """
+import json
 import logging
 
+import openai
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
@@ -34,12 +36,7 @@ def _get_openai_client():
     if not api_key:
         logger.debug("LLM_OPENAI_API_KEY is not configured; skipping LLM validation")
         return None
-    try:
-        import openai  # noqa: PLC0415 - imported lazily to avoid hard dependency
-        return openai.OpenAI(api_key=api_key)
-    except ImportError:
-        logger.warning("openai package is not installed; skipping LLM validation")
-        return None
+    return openai.OpenAI(api_key=api_key)
 
 
 def _validate_statement(client, field_label: str, text: str) -> None:
@@ -59,8 +56,6 @@ def _validate_statement(client, field_label: str, text: str) -> None:
     ValidationError
         When the LLM determines the statement is invalid or illogical.
     """
-    import json  # noqa: PLC0415
-
     model = getattr(settings, "LLM_OPENAI_MODEL", "gpt-4o-mini")
     user_message = (
         f"Please evaluate the following risk acceptance {field_label}:\n\n{text}"
@@ -98,7 +93,6 @@ def validate_risk_acceptance_statement(decision_details: str | None, recommendat
     This function is a no-op when:
     - ``LLM_RISK_ACCEPTANCE_VALIDATION_ENABLED`` is ``False`` (the default).
     - ``LLM_OPENAI_API_KEY`` is not set.
-    - The ``openai`` package is not installed.
     - Any network or API error occurs (errors are logged but not re-raised).
 
     Parameters
