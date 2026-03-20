@@ -941,6 +941,15 @@ class EditRiskAcceptanceForm(forms.ModelForm):
                 raise ValidationError(msg)
         return data
 
+    def clean(self):
+        cleaned_data = super().clean()
+        from dojo.risk_acceptance.llm_validator import validate_risk_acceptance_statement
+        validate_risk_acceptance_statement(
+            cleaned_data.get("decision_details"),
+            cleaned_data.get("recommendation_details"),
+        )
+        return cleaned_data
+
 
 class RiskAcceptanceForm(EditRiskAcceptanceForm):
     accepted_findings = forms.ModelMultipleChoiceField(
